@@ -65,6 +65,7 @@ public class MainActivity extends Activity {
         }
         mimeType = intent.getType();
 
+        /*
         File file = new File(uri.getPath());
         if(!file.exists())
         {
@@ -72,6 +73,7 @@ public class MainActivity extends Activity {
             finish();
             return;
         }
+        */
 
         InputStream is = null;
         try {
@@ -97,21 +99,15 @@ public class MainActivity extends Activity {
 
 
         List<String> pathSegments = uri.getPathSegments();
-        StringBuilder pathBuilder = new StringBuilder();
-        pathBuilder.append(uri.getScheme());
-        pathBuilder.append(":///");
-        for(int i = 0; i < pathSegments.size()-1; i++) {
-            pathBuilder.append(pathSegments.get(i));
-            pathBuilder.append("/");
-        }
+        String baseUrl = buildBaseUrl(pathSegments);
 
         StringBuilder builder = new StringBuilder();
         builder.append("<html><body><img src=\"");
-        builder.append(file.getName().replace("\"", "&quote;"));
+        builder.append(pathSegments.get(pathSegments.size()-1).replace("\"", "&quote;"));
         builder.append("\"></body></html>");
 
 
-        webView.loadDataWithBaseURL(pathBuilder.toString(), builder.toString(), "text/html; charset=UTF-8", null, null);
+        webView.loadDataWithBaseURL(baseUrl, builder.toString(), "text/html; charset=UTF-8", null, null);
 
 
         ((FixedWebView)contentView).setOnTouchListener2(new View.OnTouchListener() {
@@ -149,6 +145,29 @@ public class MainActivity extends Activity {
 
 
 
+    }
+
+    private String buildBaseUrl(List<String> pathSegments) {
+        String baseUrl;
+        StringBuilder pathBuilder = new StringBuilder();
+        if(uri.getScheme().equals("file")) {
+            pathBuilder.append(uri.getScheme());
+            pathBuilder.append(":///");
+            for(int i = 0; i < pathSegments.size()-1; i++) {
+                pathBuilder.append(pathSegments.get(i));
+                pathBuilder.append("/");
+            }
+            baseUrl = pathBuilder.toString();
+        } else {
+            pathBuilder.append(uri.getScheme());
+            pathBuilder.append("://");
+            for(int i = 0; i < pathSegments.size()-1; i++) {
+                pathBuilder.append(pathSegments.get(i));
+                pathBuilder.append("/");
+            }
+            baseUrl = pathBuilder.toString();
+        }
+        return baseUrl;
     }
 
     @Override
