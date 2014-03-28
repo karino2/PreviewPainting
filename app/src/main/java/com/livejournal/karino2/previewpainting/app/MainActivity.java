@@ -2,16 +2,14 @@ package com.livejournal.karino2.previewpainting.app;
 
 import com.livejournal.karino2.previewpainting.app.util.SystemUiHider;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Html;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Toast;
 
@@ -48,17 +46,18 @@ public class MainActivity extends Activity {
      * The flags to pass to {@link SystemUiHider#getInstance}.
      */
     // private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
-    private static final int HIDER_FLAGS = 0;
+    // private static final int HIDER_FLAGS = 0;
 
     /**
      * The instance of the {@link SystemUiHider} for this activity.
      */
-    private SystemUiHider mSystemUiHider;
+    // private SystemUiHider mSystemUiHider;
     private void showMessage(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
 
     long downMil = -1;
+    View contentView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,12 +66,10 @@ public class MainActivity extends Activity {
         getActionBar().hide();
 
 
-
-
         setContentView(R.layout.activity_main);
 
-        final View controlsView = findViewById(R.id.fullscreen_content_controls);
-        final View contentView = findViewById(R.id.fullscreen_content);
+        // final View controlsView = findViewById(R.id.fullscreen_content_controls);
+        contentView = findViewById(R.id.fullscreen_content);
 
         Uri uri = (Uri)getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
         if(uri == null){
@@ -127,7 +124,9 @@ public class MainActivity extends Activity {
 
         // Set up an instance of SystemUiHider to control the system UI for
         // this activity.
-        mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
+        // mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
+        // mSystemUiHider.hide();
+        /*
         mSystemUiHider.setup();
         mSystemUiHider
                 .setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
@@ -166,17 +165,18 @@ public class MainActivity extends Activity {
                         }
                     }
                 });
+                */
 
         ((FixedWebView)contentView).setOnTouchListener2(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                switch(event.getAction()) {
+                switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         downMil = System.currentTimeMillis();
                         break;
                     case MotionEvent.ACTION_MOVE:
                         if (getActionBar().isShowing())
-                            getActionBar().hide();
+                            hideActionBarAndNavigation();
                         break;
                     case MotionEvent.ACTION_UP:
                         if (downMil != -1) {
@@ -184,9 +184,9 @@ public class MainActivity extends Activity {
                             if (diff < 100) {
                                 showMessage("tap");
                                 if (getActionBar().isShowing())
-                                    getActionBar().hide();
+                                    hideActionBarAndNavigation();
                                 else
-                                    getActionBar().show();
+                                    showActionBarAndNavigation();
                                 /*
                                 if (TOGGLE_ON_CLICK) {
                                     mSystemUiHider.toggle();
@@ -220,10 +220,34 @@ public class MainActivity extends Activity {
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        // findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
 
 
+    }
+
+    private void showActionBarAndNavigation() {
+        getActionBar().show();
+        getWindow().setFlags(
+                0,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        // mSystemUiHider.show();
+    }
+
+    private void hideActionBarAndNavigation() {
+        getActionBar().hide();
+        /*
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                */
+        contentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+               //  |View.SYSTEM_UI_FLAG_IMMERSIVE
+        );
+        // mSystemUiHider.hide();
     }
 
     @Override
@@ -233,7 +257,7 @@ public class MainActivity extends Activity {
         // Trigger the initial hide() shortly after the activity has been
         // created, to briefly hint to the user that UI controls
         // are available.
-        delayedHide(100);
+        // delayedHide(100);
     }
 
 
@@ -242,6 +266,7 @@ public class MainActivity extends Activity {
      * system UI. This is to prevent the jarring behavior of controls going away
      * while interacting with activity UI.
      */
+    /*
     View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -259,13 +284,16 @@ public class MainActivity extends Activity {
             mSystemUiHider.hide();
         }
     };
+    */
 
     /**
      * Schedules a call to hide() in [delay] milliseconds, canceling any
      * previously scheduled calls.
      */
+    /*
     private void delayedHide(int delayMillis) {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
+    */
 }
