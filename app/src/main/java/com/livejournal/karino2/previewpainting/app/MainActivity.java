@@ -8,6 +8,8 @@ import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -30,11 +32,12 @@ public class MainActivity extends Activity {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
 
-    long downMil = -1;
     View contentView;
 
     PointF downPos = null;
     float maxDistance = 0;
+    Uri uri;
+    String mimeType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,12 +51,15 @@ public class MainActivity extends Activity {
         // final View controlsView = findViewById(R.id.fullscreen_content_controls);
         contentView = findViewById(R.id.fullscreen_content);
 
-        Uri uri = (Uri)getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
+        Intent intent = getIntent();
+
+        uri = (Uri)intent.getParcelableExtra(Intent.EXTRA_STREAM);
         if(uri == null){
             showMessage("not supported. getParcelableExtra fail.");
             finish();
             return;
         }
+        mimeType = intent.getType();
 
         File file = new File(uri.getPath());
         if(!file.exists())
@@ -122,6 +128,27 @@ public class MainActivity extends Activity {
 
 
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.action_share:
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_SEND);
+                intent.setType(mimeType);
+                intent.putExtra(Intent.EXTRA_STREAM, uri);
+                startActivity(Intent.createChooser(intent, "Share Image"));
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private float distance(PointF from, float x, float y) {
