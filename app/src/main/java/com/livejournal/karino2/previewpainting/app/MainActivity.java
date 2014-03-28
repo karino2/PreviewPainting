@@ -4,6 +4,7 @@ import com.livejournal.karino2.previewpainting.app.util.SystemUiHider;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,6 +18,9 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 
@@ -67,6 +71,23 @@ public class MainActivity extends Activity {
             showMessage("Unknown file source.");
             finish();
             return;
+        }
+
+        InputStream is = null;
+        try {
+            is = getContentResolver().openInputStream(uri);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(is, null, options);
+            setTitle(options.outWidth + "x" + options.outHeight);
+        } catch (FileNotFoundException e) {
+            showMessage("file not found: " + e.getMessage());
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                showMessage("is close fail. What situation!?");
+            }
         }
 
         WebView webView = (WebView)contentView;
