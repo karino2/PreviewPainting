@@ -45,6 +45,20 @@ public class MainActivity extends Activity {
     PreviewView preview;
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("image_url", uri.toString());
+        outState.putString("image_type", mimeType);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        uri = Uri.parse(savedInstanceState.getString("image_url"));
+        mimeType = savedInstanceState.getString("image_type");
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -56,15 +70,18 @@ public class MainActivity extends Activity {
         contentView = findViewById(R.id.fullscreen_content);
         preview = (PreviewView)contentView;
 
-        Intent intent = getIntent();
+        if(uri == null) {
 
-        uri = (Uri)intent.getParcelableExtra(Intent.EXTRA_STREAM);
-        if(uri == null){
-            showMessage("not supported. getParcelableExtra fail.");
-            finish();
-            return;
+            Intent intent = getIntent();
+
+            uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            if (uri == null) {
+                showMessage("not supported. getParcelableExtra fail.");
+                finish();
+                return;
+            }
+            mimeType = intent.getType();
         }
-        mimeType = intent.getType();
 
         InputStream is = null;
         try {
