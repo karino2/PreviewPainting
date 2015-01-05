@@ -1,8 +1,8 @@
 apply plugin: 'android'
 
 android {
-    compileSdkVersion 18
-    buildToolsVersion '19.0.1'
+    compileSdkVersion 21
+    buildToolsVersion "21.1.1"
 
     defaultConfig {
         minSdkVersion 14
@@ -10,26 +10,9 @@ android {
         versionCode 1
         versionName "1.0"
     }
-    signingConfigs {
-        debug {
-            storeFile file("debug.keystore")
-        }
-
-        myConfig {
-            storeFile file("/Users/karino/Dropbox/backup/releasekey/release.keystore")
-            storePassword "XXXX"
-            // storePassword System.console().readLine("\n\$ Enter keystore password: ")
-            keyAlias "releasekey"
-            keyPassword "XXXX"
-            // keyPassword System.console().readLine("\n\$ Enter key password: ")
-        }
-    }
 
     buildTypes {
         release {
-            runProguard false
-            debuggable false
-            signingConfig signingConfigs.myConfig
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
